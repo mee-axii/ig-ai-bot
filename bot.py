@@ -14,24 +14,22 @@ async def make_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     msg_args = context.args
     if not msg_args:
-        await update.message.reply_text("Iltimos, matn yozing. Masalan: /makevideo AI serial uchun matn...")
+        await update.message.reply_text("Matn yozing. Masalan: /makevideo AI serial matni...")
         return
 
     text = " ".join(msg_args)
-    status_msg = await update.message.reply_text("🎬 Ovozli video yasalmoqda...")
+    status_msg = await update.message.reply_text("🎬 Video yasalmoqda...")
 
     audio_file = "voice.mp3"
     video_file = "ai_video.mp4"
 
     try:
-        # 1. Matnni ovozga aylantirish
         tts = gTTS(text=text, lang='uz')
         tts.save(audio_file)
 
-        # 2. Faqat fon va ovozdan iborat toza video yasash (Subtitrsiz)
         cmd = [
             'ffmpeg', '-y',
-            '-f', 'lavfi', '-i', 'color=c=101026:s=1080x1920:r=24', # Reels o'lchami
+            '-f', 'lavfi', '-i', 'color=c=101026:s=1080x1920:r=24',
             '-i', audio_file,
             '-c:v', 'libx264', '-tune', 'stillimage',
             '-c:a', 'aac', '-b:a', '192k',
@@ -41,9 +39,8 @@ async def make_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         subprocess.run(cmd, check=True)
 
-        # 3. Yuborish
         with open(video_file, 'rb') as video:
-            await update.message.reply_video(video=video, caption="✨ Videongiz tayyor! Endi uni istalgan ilovada bezashingiz mumkin.")
+            await update.message.reply_video(video=video, caption="✨ Videongiz tayyor!")
         
         await status_msg.delete()
 
