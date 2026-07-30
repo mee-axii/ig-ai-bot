@@ -24,9 +24,11 @@ async def make_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     video_file = "ai_video.mp4"
 
     try:
+        # 1. Ovoz yaratish
         tts = gTTS(text=text, lang='uz')
         tts.save(audio_file)
 
+        # 2. FFmpeg orqali toza video va ovozni birlashtirish (subtitrsiz)
         cmd = [
             'ffmpeg', '-y',
             '-f', 'lavfi', '-i', 'color=c=101026:s=1080x1920:r=24',
@@ -39,6 +41,7 @@ async def make_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         subprocess.run(cmd, check=True)
 
+        # 3. Videoni yuborish
         with open(video_file, 'rb') as video:
             await update.message.reply_video(video=video, caption="✨ Videongiz tayyor!")
         
@@ -51,8 +54,14 @@ async def make_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if os.path.exists(video_file): os.remove(video_file)
 
 def main():
+    if not TELEGRAM_TOKEN:
+        print("TELEGRAM_TOKEN topilmadi!")
+        return
+
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("makevideo", make_video))
+    
+    print("Bot muvaffaqiyatli ishga tushdi...")
     app.run_polling()
 
 if __name__ == "__main__":
